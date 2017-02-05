@@ -73,7 +73,8 @@ public class Server{
 			// TODO Auto-generated method stub
 			try{
 				System.out.println("New client added with port number " + sock.getPort());
-
+				PrintStream ps = new PrintStream(sock.getOutputStream());
+				ps.println(socketMap.get(sock));
 				while(true){
 					br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 					mode = br.readLine();

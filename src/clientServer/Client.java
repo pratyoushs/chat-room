@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 import java.io.*;
 public class Client {
 	private Socket sock;
-	
+	private String clientId;
 	public static void main(String[] args) throws Exception{
 		Client c = new Client();
 		c.startClient();
@@ -15,7 +15,7 @@ public class Client {
 	private void startClient() throws Exception {
 		// TODO Auto-generated method stub
 		sock = new Socket("localhost", 444);
-				
+		
 		ExecutorService executor = Executors.newCachedThreadPool();
 		executor.execute(new Send());
 		executor.execute(new Receive());		
@@ -41,6 +41,7 @@ public class Client {
 			// TODO Auto-generated method stub
 			System.out.println("You are connected!");
 			String messageSent;
+					
 			while(true){
 				try {
 					messageSent = br.readLine();
@@ -113,7 +114,11 @@ public class Client {
 			ps.println(mode.toLowerCase() + " file");
 			ps.println(client.toLowerCase());
 			//System.out.println(mode + " " + client + " " + message);
-			File transferFile = new File ("C:\\Users\\Pratyoush\\Desktop\\clientserver\\client1\\"+message);
+			File transferFile = new File ("C:\\Users\\Pratyoush\\Desktop\\clientserver\\" + clientId + "\\"+message);
+			if(!transferFile.exists()){
+				System.out.println("File not found.");
+				return;
+			}
 			ps.println(transferFile.getName());
 			ps.println(transferFile.length());
 	
@@ -127,20 +132,6 @@ public class Client {
 	    	bis.close();
 			System.out.println("You>   Sent a file: " + message);
 
-		    //FileInputStream fin = new FileInputStream(transferFile);
-		    /*int c = 0;
-		    try{
-		    	while( (c = bis.read(byteArray, 0, byteArray.length)) != -1){
-		    		//ps.print(byteArray);
-		    		os.write(byteArray, 0, c);
-		    	}
-		    	os.flush();
-		    	bis.close();
-				System.out.println("You>   Sent a file: " + message);
-		    }
-		    catch(FileNotFoundException e){
-		    	System.out.println("File not found. Please check the filename and retry.");
-		    }	*/
 		}
 	}
 	
@@ -149,10 +140,6 @@ public class Client {
 		BufferedReader br;
 		InputStream is;
 		public Receive(){
-		}
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
 			try {
 				is = sock.getInputStream();
 				ir = new InputStreamReader(is);
@@ -161,12 +148,24 @@ public class Client {
 				// TODO Auto-generated catch block
 				System.out.println(e1.getMessage());
 			}
+		}
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
 			//System.out.println("Ready to receive");
 			String messageRecv;
 			String sender;
+			try {
+				clientId = br.readLine();
+				System.out.println("You are connected as " + clientId);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.getMessage();
+			}
 			while(true){
 				
-				try {
+				try {					
 					sender = br.readLine();
 					System.out.print(sender+">   ");
 					messageRecv = br.readLine();
@@ -181,10 +180,13 @@ public class Client {
 							File outputFile = new File(
 									"C:\\Users\\Pratyoush\\Desktop\\clientserver\\"+clientId+"\\"+fileName);
 							
-							FileOutputStream os = new FileOutputStream(outputFile);
 							if(!outputFile.exists()){
-								outputFile.mkdirs();
+								//System.out.println("Creating a new directory.");
+								outputFile.getParentFile().mkdirs();
+								outputFile.createNewFile();
 							}
+							FileOutputStream os = new FileOutputStream(outputFile);
+							
 							int countS = 0;
 							while ( fLength > 0 && (countS = is.read(byteArray, 0, byteArray.length))!= -1) {
 					            //countS = is.read(byteArray,0,byteArray.length);
