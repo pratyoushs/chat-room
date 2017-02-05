@@ -1,6 +1,8 @@
 package clientServer;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -202,27 +204,31 @@ public class Server{
 
 		private void broadCastFile() throws IOException {
 			// TODO Auto-generated method stub
-			InputStream is = sock.getInputStream();
+			DataInputStream dis = new DataInputStream(sock.getInputStream());
 			String fileName = br.readLine();
 			int fileLength = Integer.parseInt(br.readLine());
-			byte[] byteArray = new byte[1024];
+			byte[] byteArray = new byte[fileLength];
+			dis.readFully(byteArray, 0, byteArray.length);
+			
 			int countS;
 			int fLength = fileLength;
 			File transferFile = new File("newservercopy\\"+fileName);
 			FileOutputStream fos = new FileOutputStream(transferFile);
-			while( fLength > 0 && (countS = is.read(byteArray, 0, byteArray.length)) != -1){
+			fos.write(byteArray,0,byteArray.length);
+			/*while( fLength > 0 && (countS = is.read(byteArray, 0, byteArray.length)) != -1){
 				fos.write(byteArray, 0, byteArray.length);
 				fLength -= countS;
-			}
+			}*/
 			fos.flush();
 			fos.close();
 			System.out.println("Server received");
 			for(Socket s: socketMap.keySet()){
 				if(s.getPort() != sock.getPort()){
 					OutputStream os = s.getOutputStream();
+					DataOutputStream dos = new DataOutputStream(os);
 					PrintStream ps = new PrintStream(os);
-					FileInputStream fis = new FileInputStream(transferFile);
-					byteArray = new byte[1024];
+					//FileInputStream fis = new FileInputStream(transferFile);
+					byteArray = new byte[fileLength];
 					countS = 0;
 					fLength = fileLength;
 					
@@ -231,12 +237,16 @@ public class Server{
 					ps.println(socketMap.get(s));
 					ps.println(fileName);
 					ps.println(fileLength);
-
-					while((countS = fis.read(byteArray, 0, byteArray.length)) != -1){
+					ps.flush();
+					
+					dos.write(byteArray,0,byteArray.length);
+					dos.flush();
+					//dos.close();
+					/*while((countS = fis.read(byteArray, 0, byteArray.length)) != -1){
 						os.write(byteArray,0,byteArray.length);
 					}
 					os.flush();
-					fis.close();
+					fis.close();*/
 					System.out.println("File sent to " + socketMap.get(s));
 				}
 			}

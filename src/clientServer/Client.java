@@ -117,11 +117,19 @@ public class Client {
 			ps.println(transferFile.getName());
 			ps.println(transferFile.length());
 	
-		    byte [] byteArray  = new byte [1024];
+		    byte [] byteArray  = new byte [(int) transferFile.length()];
+		    DataOutputStream dos = new DataOutputStream(os);
+		    
+	    	FileInputStream bis = (new FileInputStream(transferFile));
+	    	bis.read(byteArray, 0, byteArray.length);
+	    	dos.write(byteArray);
+	    	dos.flush();
+	    	bis.close();
+			System.out.println("You>   Sent a file: " + message);
+
 		    //FileInputStream fin = new FileInputStream(transferFile);
-		    int c = 0;
+		    /*int c = 0;
 		    try{
-		    	FileInputStream bis = (new FileInputStream(transferFile));
 		    	while( (c = bis.read(byteArray, 0, byteArray.length)) != -1){
 		    		//ps.print(byteArray);
 		    		os.write(byteArray, 0, c);
@@ -132,7 +140,7 @@ public class Client {
 		    }
 		    catch(FileNotFoundException e){
 		    	System.out.println("File not found. Please check the filename and retry.");
-		    }	
+		    }	*/
 		}
 	}
 	
@@ -161,7 +169,7 @@ public class Client {
 				try {
 					sender = br.readLine();
 					System.out.print(sender+">   ");
-					messageRecv = br.readLine().trim();
+					messageRecv = br.readLine();
 					if(messageRecv != null){
 						if(messageRecv.equalsIgnoreCase("%file%")){
 							String clientId = br.readLine();
@@ -169,7 +177,7 @@ public class Client {
 							int fLength = Integer.parseInt(br.readLine());
 							//System.out.println(clientId + fileName + " " + fLength + messageRecv);
 							//System.exit(0);
-							byte[] byteArray = new byte[1024];
+							byte[] byteArray = new byte[fLength];
 							File outputFile = new File(
 									"C:\\Users\\Pratyoush\\Desktop\\clientserver\\"+clientId+"\\"+fileName);
 							
