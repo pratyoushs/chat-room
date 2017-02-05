@@ -161,41 +161,34 @@ public class Server{
 
 		private void uniCastFile(String client) throws Exception {
 			// TODO Auto-generated method stub
-			InputStream is = sock.getInputStream();
+			DataInputStream dis = new DataInputStream(sock.getInputStream());
 			String fileName = br.readLine();
 			int fileLength = Integer.parseInt(br.readLine());
-			byte[] byteArray = new byte[1024];
-			int countS;
-			int fLength = fileLength;
+			byte[] byteArray = new byte[fileLength];
+			dis.readFully(byteArray, 0, byteArray.length);
+			
 			File transferFile = new File("newservercopy\\"+fileName);
 			FileOutputStream fos = new FileOutputStream(transferFile);
-			while( fLength > 0 && (countS = is.read(byteArray, 0, byteArray.length)) != -1){
-				fos.write(byteArray, 0, byteArray.length);
-				fLength -= countS;
-			}
+			fos.write(byteArray,0,byteArray.length);
+			
 			fos.flush();
 			fos.close();
 			System.out.println("Server received");
 			for(Socket s: socketMap.keySet()){
 				if(s.getPort() != sock.getPort() && socketMap.get(s).equals(client)){
 					OutputStream os = s.getOutputStream();
+					DataOutputStream dos = new DataOutputStream(os);
 					PrintStream ps = new PrintStream(os);
-					FileInputStream fis = new FileInputStream(transferFile);
-					byteArray = new byte[1024];
-					countS = 0;
-					fLength = fileLength;
 					
 					ps.println(socketMap.get(sock));
 					ps.println("%File%");
 					ps.println(socketMap.get(s));
 					ps.println(fileName);
-					ps.println(fileLength);
-
-					while((countS = fis.read(byteArray, 0, byteArray.length)) != -1){
-						os.write(byteArray,0,byteArray.length);
-					}
-					os.flush();
-					fis.close();
+					ps.println(byteArray.length);
+					ps.flush();
+					
+					dos.write(byteArray,0,byteArray.length);
+					dos.flush();
 					System.out.println("File sent to " + socketMap.get(s));
 				}
 			}
@@ -210,43 +203,28 @@ public class Server{
 			byte[] byteArray = new byte[fileLength];
 			dis.readFully(byteArray, 0, byteArray.length);
 			
-			int countS;
-			int fLength = fileLength;
 			File transferFile = new File("newservercopy\\"+fileName);
 			FileOutputStream fos = new FileOutputStream(transferFile);
 			fos.write(byteArray,0,byteArray.length);
-			/*while( fLength > 0 && (countS = is.read(byteArray, 0, byteArray.length)) != -1){
-				fos.write(byteArray, 0, byteArray.length);
-				fLength -= countS;
-			}*/
+			
 			fos.flush();
 			fos.close();
-			System.out.println("Server received");
+			System.out.println("Server received: " + byteArray.length);
 			for(Socket s: socketMap.keySet()){
 				if(s.getPort() != sock.getPort()){
 					OutputStream os = s.getOutputStream();
 					DataOutputStream dos = new DataOutputStream(os);
 					PrintStream ps = new PrintStream(os);
-					//FileInputStream fis = new FileInputStream(transferFile);
-					byteArray = new byte[fileLength];
-					countS = 0;
-					fLength = fileLength;
 					
 					ps.println(socketMap.get(sock));
 					ps.println("%File%");
 					ps.println(socketMap.get(s));
 					ps.println(fileName);
-					ps.println(fileLength);
+					ps.println(byteArray.length);
 					ps.flush();
 					
 					dos.write(byteArray,0,byteArray.length);
 					dos.flush();
-					//dos.close();
-					/*while((countS = fis.read(byteArray, 0, byteArray.length)) != -1){
-						os.write(byteArray,0,byteArray.length);
-					}
-					os.flush();
-					fis.close();*/
 					System.out.println("File sent to " + socketMap.get(s));
 				}
 			}

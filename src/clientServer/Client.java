@@ -177,7 +177,7 @@ public class Client {
 							int fLength = Integer.parseInt(br.readLine());
 							//System.out.println(clientId + fileName + " " + fLength + messageRecv);
 							//System.exit(0);
-							byte[] byteArray = new byte[fLength];
+							byte[] byteArray = new byte[1024];
 							File outputFile = new File(
 									"C:\\Users\\Pratyoush\\Desktop\\clientserver\\"+clientId+"\\"+fileName);
 							
