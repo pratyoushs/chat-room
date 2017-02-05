@@ -39,7 +39,7 @@ public class Client {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			System.out.println("You are connected!");
+			//System.out.println("You are connected!");
 			String messageSent;
 					
 			while(true){
